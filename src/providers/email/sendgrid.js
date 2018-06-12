@@ -28,7 +28,7 @@ export default class EmailSendGridProvider {
           ...(cc && cc.length > 0 ? {cc: cc.map((email) => ({email}))} : null),
           ...(bcc && bcc.length > 0 ? {bcc: bcc.map((email) => ({email}))} : null)
         }],
-        from: {email: from},
+        from: typeof from === 'string' ? {email: from} : from,
         ...(replyTo ? {reply_to: {email: replyTo}} : null),
         subject,
         content: [

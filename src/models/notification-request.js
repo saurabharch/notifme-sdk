@@ -12,7 +12,7 @@ export type WebhookRequestType = RequestMetadataType & {
 }
 
 export type EmailRequestType = RequestMetadataType & {
-  from: string,
+  from: string | Object,
   to: string,
   subject: string,
   cc?: string[],
