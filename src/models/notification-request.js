@@ -23,7 +23,8 @@ export type EmailRequestType = RequestMetadataType & {
   attachments?: {
     contentType: string, // text/plain...
     filename: string,
-    content: string | Buffer
+    content: string | Buffer,
+    content_id?: string
     // path?: string,
     // href?: string,
     // contentDisposition?: string,
@@ -34,7 +35,8 @@ export type EmailRequestType = RequestMetadataType & {
     // headers?: {[string]: string | number | boolean}
   }[],
   headers?: {[string]: string | number | boolean},
-  categories?: string[]
+  categories?: string[],
+
 }
 
 export type PushRequestType = RequestMetadataType & {

@@ -39,11 +39,13 @@ export default class EmailSendGridProvider {
         categories,
         custom_args: {id: generatedId, userId},
         ...(attachments && attachments.length > 0 ? {
-          attachments: attachments.map(({contentType, filename, content}) =>
+          attachments: attachments.map(({contentType, filename, content, content_id}) =>
             ({
               type: contentType,
               filename,
-              content: typeof content === 'string' ? content : Buffer.from(content).toString('base64')
+              content: typeof content === 'string' ? content : Buffer.from(content).toString('base64'),
+              content_id,
+              disposition: content_id ? 'inline' : 'attachment'
             }))
         } : null)
       })
