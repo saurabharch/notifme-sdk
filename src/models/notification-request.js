@@ -33,7 +33,8 @@ export type EmailRequestType = RequestMetadataType & {
     // encoding?: string,
     // headers?: {[string]: string | number | boolean}
   }[],
-  headers?: {[string]: string | number | boolean}
+  headers?: {[string]: string | number | boolean},
+  categories?: string[]
 }
 
 export type PushRequestType = RequestMetadataType & {
