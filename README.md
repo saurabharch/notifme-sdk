@@ -10,9 +10,8 @@
 
 <p align="center">
   <a href="https://www.npmjs.com/package/notifme-sdk"><img alt="npm-status" src="https://img.shields.io/npm/v/notifme-sdk.svg?style=flat" /></a>
-  <a href="https://travis-ci.org/notifme/notifme-sdk"><img alt="travis-build-status" src="https://img.shields.io/travis/notifme/notifme-sdk.svg?style=flat" /></a>
-  <a href="https://codeclimate.com/github/notifme/notifme-sdk/coverage"><img alt="codeclimate-code-coverage" src="https://img.shields.io/codeclimate/coverage/github/notifme/notifme-sdk.svg?style=flat" /></a>
-  <a href="https://codeclimate.com/github/notifme/notifme-sdk"><img alt="codeclimate" src="https://img.shields.io/codeclimate/github/notifme/notifme-sdk.svg?style=flat" /></a>
+  <a href="https://travis-ci.org/notifme/notifme-sdk"><img alt="travis-build-status" src="https://api.travis-ci.org/notifme/notifme-sdk.svg" /></a>
+  <a href="https://codeclimate.com/github/notifme/notifme-sdk/test_coverage"><img src="https://api.codeclimate.com/v1/badges/2d2cc6d915094ddb50b7/test_coverage" /></a>
   <a href="https://david-dm.org/notifme/notifme-sdk"><img alt="dependencies" src="https://david-dm.org/notifme/notifme-sdk.svg" /></a>
   <a href="https://github.com/notifme/notifme-sdk/blob/master/LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT_License-blue.svg?style=flat" /></a>
   <a href="https://slackin-notifme.now.sh"><img alt="slack" src="https://img.shields.io/badge/Slack-Join_us!-e01563.svg?style=flat" /></a>
@@ -23,8 +22,9 @@
 - [How to use](#how-to-use)
   - [1. General options](#1-general-options)
   - [2. Providers](#2-providers)
-  - [3. Send a notification](#3-send-a-notification)
-  - [4. In production](#4-in-production)
+  - [3. Custom channels](#3-custom-channels)
+  - [4. Send a notification](#4-send-a-notification)
+  - [5. In production](#5-in-production)
 - [Contributing](#contributing)
 - [Need help? Found a bug?](#need-help-found-a-bug)
 - [Related Projects](#related-projects)
@@ -98,8 +98,9 @@ $ NOTIFME_CATCHER_OPTIONS=smtp://127.0.0.1:3025?ignoreTLS=true node your-script-
 
 - [1. General options](#1-general-options)
 - [2. Providers](#2-providers)
-- [3. Send a notification](#3-send-a-notification)
-- [4. In production](#4-in-production)
+- [3. Custom channels](#3-custom-channels)
+- [4. Send a notification](#4-send-a-notification)
+- [5. In production](#5-in-production)
 
 ### 1. General options
 
@@ -230,6 +231,22 @@ new NotifmeSdk({
         type: 'mailgun',
         apiKey: 'xxxxx',
         domainName: 'example.com'
+      }]
+    }
+  }
+})
+```
+
+</p></details>
+<details><summary>Mandrill</summary><p>
+
+```javascript
+new NotifmeSdk({
+  channels: {
+    email: {
+      providers: [{
+        type: 'mandrill',
+        apiKey: 'xxxxx'
       }]
     }
   }
@@ -924,7 +941,36 @@ const smsCheapStrategy = (providers) => async (request) => {
 
 If you would like to see another provider or channel, please [upvote the corresponding issue](https://github.com/notifme/notifme-sdk/issues) (or create one if it does not exist yet).
 
-### 3. Send a notification
+### 3. Custom channels
+
+If you want to have custom channels (and providers) you can add them.
+
+Example:
+
+<details><summary>Custom channel and provider</summary><p>
+
+```
+new NotifmeSdk({
+  channels: {
+    socket: {
+      multiProviderStrategy: 'fallback',
+      providers: [
+        {
+          type: 'custom',
+          id: 'my-socket-sender',
+          send: async () => {
+            return 'custom-socket-id'
+          }
+        }
+      ]
+    }
+  }
+})
+```
+
+</p></details>
+
+### 4. Send a notification
 
 #### Parameters
 
@@ -1107,7 +1153,7 @@ Examples:
 | Success<br>(when Promise resolves) | `{status: 'success', channels: {sms: {id: 'id-116561976', providerId: 'sms-default-provider'}}}` |
 | Error<br>(here Notification Catcher is not running) | `{status: 'error', channels: {sms: {id: undefined, providerId: 'sms-notificationcatcher-provider'}}, errors: {sms: 'connect ECONNREFUSED 127.0.0.1:1025'}}` |
 
-### 4. In production
+### 5. In production
 
 #### Recommended options
 

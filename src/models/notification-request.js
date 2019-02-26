@@ -37,6 +37,7 @@ export type EmailRequestType = RequestMetadataType & {
   headers?: {[string]: string | number | boolean},
   categories?: string[],
 
+  customize?: (string, EmailRequestType) => Promise<EmailRequestType>
 }
 
 export type PushRequestType = RequestMetadataType & {
@@ -79,7 +80,8 @@ export type PushRequestType = RequestMetadataType & {
   headers?: {[string]: string | number | boolean}, // wns
   launch?: string, // wns
   duration?: string, // wns
-  consolidationKey?: string // ADM
+  consolidationKey?: string, // ADM
+  customize?: (string, PushRequestType) => Promise<PushRequestType>
 }
 
 export type SmsRequestType = RequestMetadataType & {
@@ -89,7 +91,7 @@ export type SmsRequestType = RequestMetadataType & {
   type?: 'text' | 'unicode', // Defaults to 'text'
   nature?: 'marketing' | 'transactional',
   ttl?: number,
-  messageClass?: 0 | 1 | 2 | 3 // 0 for Flash SMS, 1 - ME-specific, 2 - SIM / USIM specific, 3 - TE-specific
+  messageClass?: 0 | 1 | 2 | 3, // 0 for Flash SMS, 1 - ME-specific, 2 - SIM / USIM specific, 3 - TE-specific
 // } & (
 //   {type?: 'text', text: string}
 //   | {type: 'unicode', text: string}
@@ -98,6 +100,7 @@ export type SmsRequestType = RequestMetadataType & {
 //   | {type: 'vcal', vcal: string}
 //   | {type: 'vcard', vcard: string}
 // )
+  customize?: (string, SmsRequestType) => Promise<SmsRequestType>
 }
 
 export type VoiceRequestType = RequestMetadataType & {
@@ -112,7 +115,8 @@ export type VoiceRequestType = RequestMetadataType & {
   sendDigits?: string,
   machineDetection?: string,
   machineDetectionTimeout?: number,
-  timeout?: number
+  timeout?: number,
+  customize?: (string, VoiceRequestType) => Promise<VoiceRequestType>
 }
 
 export type WebpushRequestType = RequestMetadataType & {
@@ -135,7 +139,8 @@ export type WebpushRequestType = RequestMetadataType & {
   icon?: string, // C22 F22
   image?: string, // C55 F22
   redirects?: {[key: string]: string}, // added for local tests
-  requireInteraction?: boolean // C22 F52
+  requireInteraction?: boolean, // C22 F52
+  customize?: (string, WebpushRequestType) => Promise<WebpushRequestType>
 }
 
 export type SlackRequestType = RequestMetadataType & {
@@ -168,7 +173,8 @@ export type SlackRequestType = RequestMetadataType & {
     footer?: string,
     footer_icon?: string,
     ts?: number
-  }[]
+  }[],
+  customize?: (string, SlackRequestType) => Promise<SlackRequestType>
 }
 
 export type RequestType = EmailRequestType | PushRequestType | SmsRequestType | VoiceRequestType | WebpushRequestType | SlackRequestType | WebhookRequestType

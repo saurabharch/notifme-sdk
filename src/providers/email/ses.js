@@ -1,11 +1,11 @@
 /* @flow */
 import AWSSignersV4 from '../../util/aws/v4'
-import {sha256} from '../../util/crypto'
+import { sha256 } from '../../util/crypto'
 import fetch from '../../util/request'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import qs from 'querystring'
 // types
-import type {EmailRequestType} from '../../models/notification-request'
+import type { EmailRequestType } from '../../models/notification-request'
 
 export default class EmailSesProvider {
   id: string = 'email-ses-provider'
@@ -16,17 +16,20 @@ export default class EmailSesProvider {
     sessionToken: ?string
   }
 
-  constructor ({region, accessKeyId, secretAccessKey, sessionToken}: Object) {
-    this.credentials = {region, accessKeyId, secretAccessKey, sessionToken}
+  constructor ({ region, accessKeyId, secretAccessKey, sessionToken }: Object) {
+    this.credentials = { region, accessKeyId, secretAccessKey, sessionToken }
   }
 
   async send (request: EmailRequestType): Promise<string> {
-    const {region} = this.credentials
+    const { region } = this.credentials
     const host = `email.${region}.amazonaws.com`
+    const raw = (await this.getRaw(
+      request.customize ? (await request.customize(this.id, request)) : request)
+    ).toString('base64')
     const body = qs.stringify({
       Action: 'SendRawEmail',
       Version: '2010-12-01',
-      'RawMessage.Data': (await this.getRaw(request)).toString('base64')
+      'RawMessage.Data': raw
     })
     const apiRequest = {
       method: 'POST',
@@ -53,7 +56,7 @@ export default class EmailSesProvider {
     }
   }
 
-  getRaw (request: EmailRequestType): Promise<Buffer> {
+  getRaw ({ customize, ...request }: EmailRequestType): Promise<Buffer> {
     return new Promise((resolve, reject) => {
       const email = new MailComposer(request).compile()
       email.keepBcc = true

@@ -3,7 +3,7 @@
 import NotifmeSdk from '../../../src'
 
 const mockSendMail = jest.fn()
-mockSendMail.mockReturnValue({messageId: 'returned-id'})
+mockSendMail.mockReturnValue({ messageId: 'returned-id' })
 jest.mock('nodemailer', () => ({
   createTransport: () => ({
     sendMail: mockSendMail
@@ -42,7 +42,17 @@ test('Smtp should use nodemailer.', async () => {
   expect(result).toEqual({
     status: 'success',
     channels: {
-      email: {id: 'returned-id', providerId: 'email-smtp-provider'}
+      email: { id: 'returned-id', providerId: 'email-smtp-provider' }
     }
   })
+})
+
+test('Smtp should customize requests.', async () => {
+  await sdk.send({
+    email: {
+      ...request.email,
+      customize: async (provider, request) => ({ ...request, subject: 'Hi John!' })
+    }
+  })
+  expect(mockSendMail).lastCalledWith({ ...request.email, subject: 'Hi John!' })
 })

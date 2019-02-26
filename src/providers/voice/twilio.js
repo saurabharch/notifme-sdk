@@ -2,14 +2,14 @@
 import fetch from '../../util/request'
 import FormData from 'form-data'
 // Types
-import type {VoiceRequestType} from '../../models/notification-request'
+import type { VoiceRequestType } from '../../models/notification-request'
 
 export default class VoiceTwilioProvider {
   id: string = 'voice-twilio-provider'
   accountSid: string
   apiKey: string
 
-  constructor ({accountSid, authToken}: Object) {
+  constructor ({ accountSid, authToken }: Object) {
     this.accountSid = accountSid
     this.apiKey = Buffer.from(`${accountSid}:${authToken}`).toString('base64')
   }
@@ -28,7 +28,7 @@ export default class VoiceTwilioProvider {
       machineDetection,
       machineDetectionTimeout,
       timeout
-    } = request
+    } = request.customize ? (await request.customize(this.id, request)) : request
     const form = new FormData()
     form.append('From', from)
     form.append('To', to)

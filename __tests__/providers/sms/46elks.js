@@ -1,7 +1,7 @@
 /* @flow */
 /* global jest, test, expect */
 import NotifmeSdk from '../../../src'
-import mockHttp, {mockResponse} from '../mockHttp'
+import mockHttp, { mockResponse } from '../mockHttp'
 
 jest.mock('../../../src/util/logger', () => ({
   warn: jest.fn()
@@ -20,11 +20,15 @@ const sdk = new NotifmeSdk({
 })
 
 const request = {
-  sms: {from: 'Notifme', to: '+15000000001', text: 'Hello John! How are you?'}
+  sms: {
+    from: 'Notifme',
+    to: '+15000000001',
+    text: 'Hello John! How are you?'
+  }
 }
 
 test('46Elks success with minimal parameters.', async () => {
-  mockResponse(200, JSON.stringify({id: 'returned-id'}))
+  mockResponse(200, JSON.stringify({ id: 'returned-id' }))
   const result = await sdk.send(request)
   expect(mockHttp).lastCalledWith(expect.objectContaining({
     hostname: 'api.46elks.com',
@@ -45,9 +49,22 @@ test('46Elks success with minimal parameters.', async () => {
   expect(result).toEqual({
     status: 'success',
     channels: {
-      sms: {id: 'returned-id', providerId: 'sms-46elks-provider'}
+      sms: { id: 'returned-id', providerId: 'sms-46elks-provider' }
     }
   })
+})
+
+test('46Elks shouls customize requests.', async () => {
+  mockResponse(200, JSON.stringify({ id: 'returned-id' }))
+  await sdk.send({
+    sms: {
+      ...request.sms,
+      customize: async (provider, request) => ({ ...request, text: 'Hello John! How are you??' })
+    }
+  })
+  expect(mockHttp).lastCalledWith(expect.objectContaining({
+    headers: expect.objectContaining({ 'Content-Length': ['76'] })
+  }))
 })
 
 test('46Elks error.', async () => {
@@ -59,7 +76,7 @@ test('46Elks error.', async () => {
       sms: 'error!'
     },
     channels: {
-      sms: {id: undefined, providerId: 'sms-46elks-provider'}
+      sms: { id: undefined, providerId: 'sms-46elks-provider' }
     }
   })
 })

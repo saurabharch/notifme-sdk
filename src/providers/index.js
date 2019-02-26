@@ -7,8 +7,8 @@ import webpushFactory from './webpush'
 import slackFactory from './slack'
 import webhookFactory from './webhook'
 // Types
-import type {ChannelType} from '../index'
-import type {RequestType} from '../models/notification-request'
+import type { ChannelType } from '../index'
+import type { RequestType } from '../models/notification-request'
 
 export type ChannelOptionsType = {[ChannelType]: {providers: Object[]}}
 
@@ -43,6 +43,8 @@ export default function factory (channels: ChannelOptionsType): ProvidersType {
 
         case 'webhook':
           return webhookFactory(config)
+        default:
+          return config
       }
     })
 

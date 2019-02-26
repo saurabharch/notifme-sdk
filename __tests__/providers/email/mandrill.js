@@ -11,7 +11,7 @@ const sdk = new NotifmeSdk({
   channels: {
     email: {
       providers: [{
-        type: 'sendgrid',
+        type: 'mandrill',
         apiKey: 'key'
       }]
     }
@@ -27,36 +27,35 @@ const request = {
   }
 }
 
-test('Sendgrid success with minimal parameters.', async () => {
-  mockResponse(200, '')
+test('Mandrill success with minimal parameters.', async () => {
+  mockResponse(200, JSON.stringify([{ _id: 'returned-id', status: 'sent', email: 'john@example.com' }]))
   const result = await sdk.send(request)
   expect(mockHttp).lastCalledWith(expect.objectContaining({
-    hostname: 'api.sendgrid.com',
+    hostname: 'mandrillapp.com',
     method: 'POST',
-    path: '/v3/mail/send',
+    path: '/api/1.0/messages/send.json',
     protocol: 'https:',
-    href: 'https://api.sendgrid.com/v3/mail/send',
+    href: 'https://mandrillapp.com/api/1.0/messages/send.json',
     headers: expect.objectContaining({
       Accept: ['*/*'],
-      Authorization: ['Bearer key'],
-      'Content-Length': ['239'],
+      'Content-Length': ['198'],
       'Content-Type': ['application/json'],
       'User-Agent': ['notifme-sdk/v1 (+https://github.com/notifme/notifme-sdk)']
     })
   }))
   expect(mockHttp.body).toContain(
-    '{"personalizations":[{"to":[{"email":"john@example.com"}]}],"from":{"email":"me@example.com"},"subject":"Hi John","content":[{"type":"text/plain","value":"Hello John! How are you?"}],"custom_args":{"id":"'
+    '{"key":"key","message":{"from_email":"me@example.com","to":[{"email":"john@example.com","type":"to"}],"subject":"Hi John","text":"Hello John! How are you?","headers":{},"metadata":{}},"async":false}'
   )
   expect(result).toEqual({
     status: 'success',
     channels: {
-      email: { id: expect.stringMatching(/\w*/), providerId: 'email-sendgrid-provider' }
+      email: { id: expect.stringMatching(/\w*/), providerId: 'email-mandrill-provider' }
     }
   })
 })
 
-test('Sendgrid success with all parameters.', async () => {
-  mockResponse(200, '')
+test('Mandrill success with all parameters.', async () => {
+  mockResponse(200, JSON.stringify([{ _id: 'returned-id', status: 'sent', email: 'john@example.com' }]))
   const completeRequest = {
     metadata: {
       id: '24',
@@ -81,32 +80,31 @@ test('Sendgrid success with all parameters.', async () => {
   }
   const result = await sdk.send(completeRequest)
   expect(mockHttp).lastCalledWith(expect.objectContaining({
-    hostname: 'api.sendgrid.com',
+    hostname: 'mandrillapp.com',
     method: 'POST',
-    path: '/v3/mail/send',
+    path: '/api/1.0/messages/send.json',
     protocol: 'https:',
-    href: 'https://api.sendgrid.com/v3/mail/send',
+    href: 'https://mandrillapp.com/api/1.0/messages/send.json',
     headers: expect.objectContaining({
       Accept: ['*/*'],
-      Authorization: ['Bearer key'],
-      'Content-Length': ['495'],
+      'Content-Length': ['489'],
       'Content-Type': ['application/json'],
       'User-Agent': ['notifme-sdk/v1 (+https://github.com/notifme/notifme-sdk)']
     })
   }))
   expect(mockHttp.body).toEqual(
-    '{"personalizations":[{"to":[{"email":"to@example.com"}],"cc":[{"email":"cc1@example.com"},{"email":"cc2@example.com"}],"bcc":[{"email":"bcc@example.com"}]}],"from":{"email":"from@example.com"},"reply_to":{"email":"replyto@example.com"},"subject":"Hi John!","content":[{"type":"text/html","value":"<b>Hello John! How are you?</b>"}],"headers":{"My-Custom-Header":"my-value"},"custom_args":{"id":"24","userId":"36"},"attachments":[{"type":"text/plain","filename":"test.txt","content":"aGVsbG8h"}]}'
+    '{"key":"key","message":{"from_email":"from@example.com","to":[{"email":"to@example.com","type":"to"},{"email":"cc1@example.com","type":"cc"},{"email":"cc2@example.com","type":"cc"},{"email":"bcc@example.com","type":"bcc"}],"subject":"Hi John!","html":"<b>Hello John! How are you?</b>","headers":{"Reply-To":"replyto@example.com","My-Custom-Header":"my-value"},"attachments":[{"type":"text/plain","name":"test.txt","content":"aGVsbG8h"}],"metadata":{"id":"24","userId":"36"}},"async":false}'
   )
   expect(result).toEqual({
     status: 'success',
     channels: {
-      email: { id: '24', providerId: 'email-sendgrid-provider' }
+      email: { id: 'returned-id', providerId: 'email-mandrill-provider' }
     }
   })
 })
 
-test('Sendgrid success with buffered attachment.', async () => {
-  mockResponse(200, '')
+test('Mandrill success with buffered attachment.', async () => {
+  mockResponse(200, JSON.stringify([{ _id: 'returned-id', status: 'sent', email: 'john@example.com' }]))
   const completeRequest = {
     metadata: {
       id: '24'
@@ -125,40 +123,39 @@ test('Sendgrid success with buffered attachment.', async () => {
   }
   const result = await sdk.send(completeRequest)
   expect(mockHttp).lastCalledWith(expect.objectContaining({
-    hostname: 'api.sendgrid.com',
+    hostname: 'mandrillapp.com',
     method: 'POST',
-    path: '/v3/mail/send',
+    path: '/api/1.0/messages/send.json',
     protocol: 'https:',
-    href: 'https://api.sendgrid.com/v3/mail/send',
+    href: 'https://mandrillapp.com/api/1.0/messages/send.json',
     headers: expect.objectContaining({
       Accept: ['*/*'],
-      Authorization: ['Bearer key'],
-      'Content-Length': ['296'],
+      'Content-Length': ['291'],
       'Content-Type': ['application/json'],
       'User-Agent': ['notifme-sdk/v1 (+https://github.com/notifme/notifme-sdk)']
     })
   }))
   expect(mockHttp.body).toEqual(
-    '{"personalizations":[{"to":[{"email":"to@example.com"}]}],"from":{"email":"from@example.com"},"subject":"Hi John","content":[{"type":"text/html","value":"<b>Hello John! How are you?</b>"}],"custom_args":{"id":"24"},"attachments":[{"type":"text/plain","filename":"test.txt","content":"aGVsbG8h"}]}'
+    '{"key":"key","message":{"from_email":"from@example.com","to":[{"email":"to@example.com","type":"to"}],"subject":"Hi John","html":"<b>Hello John! How are you?</b>","headers":{},"attachments":[{"type":"text/plain","name":"test.txt","content":"aGVsbG8h"}],"metadata":{"id":"24"}},"async":false}'
   )
   expect(result).toEqual({
     status: 'success',
     channels: {
-      email: { id: '24', providerId: 'email-sendgrid-provider' }
+      email: { id: 'returned-id', providerId: 'email-mandrill-provider' }
     }
   })
 })
 
-test('Sendgrid API error.', async () => {
-  mockResponse(400, JSON.stringify({ errors: [{ code: '24', message: 'error!' }] }))
+test('Mandrill API error.', async () => {
+  mockResponse(400, JSON.stringify({ status: 'error', code: 12, name: 'Error', message: 'error!' }))
   const result = await sdk.send(request)
   expect(result).toEqual({
     status: 'error',
     errors: {
-      email: '400 - code: 24, message: error!'
+      email: '400 - status: error, code: 12, name: Error, message: error!'
     },
     channels: {
-      email: { id: undefined, providerId: 'email-sendgrid-provider' }
+      email: { id: undefined, providerId: 'email-mandrill-provider' }
     }
   })
 })

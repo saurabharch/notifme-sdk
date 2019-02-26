@@ -1,7 +1,7 @@
 /* @flow */
 /* global jest, test, expect */
 import NotifmeSdk from '../../../src'
-import mockHttp, {mockResponse} from '../mockHttp'
+import mockHttp, { mockResponse } from '../mockHttp'
 
 jest.mock('../../../src/util/logger', () => ({
   warn: jest.fn()
@@ -37,22 +37,35 @@ test('Slack success.', async () => {
   expect(result).toEqual({
     status: 'success',
     channels: {
-      slack: {id: '', providerId: 'slack-provider'}
+      slack: { id: '', providerId: 'slack-provider' }
     }
   })
+})
+
+test('Slack customized success.', async () => {
+  mockResponse(200, 'ok')
+  await sdk.send({
+    slack: {
+      text: '',
+      customize: async (provider, request) => ({ text: 'Hello John! How are you?' })
+    }
+  })
+  expect(mockHttp.body).toContain(
+    '{"text":"Hello John! How are you?"}'
+  )
 })
 
 test('Slack with no message.', async () => {
   mockResponse(500, 'missing_text_or_fallback_or_attachments')
   // $FlowIgnore
-  const result = await sdk.send({slack: {text: []}})
+  const result = await sdk.send({ slack: { text: [] } })
   expect(result).toEqual({
     status: 'error',
     errors: {
       slack: '500 - missing_text_or_fallback_or_attachments'
     },
     channels: {
-      slack: {id: undefined, providerId: 'slack-provider'}
+      slack: { id: undefined, providerId: 'slack-provider' }
     }
   })
 })

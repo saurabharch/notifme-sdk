@@ -1,7 +1,7 @@
 /* @flow */
 import nodemailer from 'nodemailer'
 // Types
-import type {EmailRequestType} from '../../models/notification-request'
+import type { EmailRequestType } from '../../models/notification-request'
 
 export default class EmailSendmailProvider {
   id: string = 'email-sendmail-provider'
@@ -12,7 +12,8 @@ export default class EmailSendmailProvider {
   }
 
   async send (request: EmailRequestType): Promise<string> {
-    const result = await this.transporter.sendMail(request)
+    const { customize, ...rest } = request.customize ? (await request.customize(this.id, request)) : request
+    const result = await this.transporter.sendMail(rest)
     return result.messageId
   }
 }
